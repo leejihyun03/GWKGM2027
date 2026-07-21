@@ -1,0 +1,1057 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KGM 카탈로그 업데이트 현황</title>
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+<style>
+:root{
+  --red:#e70012;
+  --red-dark:#c40010;
+  --gray:#717171;
+  --gray-light:#f2f2f3;
+  --border:#e3e3e5;
+  --bg:#1b1c20;
+  --text:#222226;
+  --text-mute:#9a9a9f;
+  --amber:#fff2cc;
+  --green:#eaf7ee;
+  --sticky-shadow: 2px 0 4px rgba(0,0,0,.06);
+  --font: 'Pretendard', -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif;
+  --left-code: 42px;
+  --left-name: 106px;
+  --code-name-bg: #c8e0fb;
+  --code-name-bg-hover: #aecdf5;
+  --code-name-bg-dark: #163f73;
+  --code-name-bg-dark-hover: #1c4a84;
+  --paper: #f5f6f8;
+  --paper-muted: #ececf0;
+  --paper-hover: #edeff3;
+  --check-green:#1f9d55;
+  --check-blue:#2f6fda;
+  /* 상단 툴바(다크) */
+  --tb-bg:#242529;
+  --tb-border:#333339;
+  --tb-text:#f0f0f1;
+  --tb-text-mute:#9c9da4;
+  --tb-ctrl-bg:#2f3035;
+  --tb-ctrl-border:#3c3d43;
+  --tb-ctrl-hover:#383941;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:var(--font);}
+body{-webkit-font-smoothing:antialiased;}
+
+/* ── 상단 툴바 ───────────────────────── */
+.topbar{
+  position:sticky; top:0; z-index:50;
+  background:var(--tb-bg); border-bottom:1px solid var(--tb-border);
+  padding:14px 20px; display:flex; align-items:center; gap:16px; flex-wrap:wrap;
+}
+.brand{display:flex; align-items:baseline; gap:10px; margin-right:auto;}
+.brand h1{font-size:18px; font-weight:800; margin:0; letter-spacing:-.2px; color:var(--tb-text);}
+.brand h1 .accent{color:var(--red);}
+.brand small{color:var(--tb-text-mute); font-size:12px;}
+
+.stats{display:flex; gap:8px; flex-wrap:wrap;}
+.chip{
+  background:var(--tb-ctrl-bg); border:1px solid var(--tb-ctrl-border); border-radius:20px;
+  padding:5px 12px; font-size:12px; color:var(--tb-text-mute); white-space:nowrap;
+}
+.chip b{color:var(--tb-text); font-weight:700;}
+.chip.confirm-chip b{color:var(--red);}
+
+.search-wrap{position:relative;}
+.search-wrap input{
+  width:220px; padding:8px 12px 8px 32px; border:1px solid var(--tb-ctrl-border); border-radius:8px;
+  font-size:13px; font-family:var(--font); background:var(--tb-ctrl-bg); color:var(--tb-text);
+}
+.search-wrap input::placeholder{color:var(--tb-text-mute);}
+.search-wrap input:focus{outline:none; border-color:var(--red); background:#34353c;}
+.search-wrap svg{position:absolute; left:9px; top:50%; transform:translateY(-50%); opacity:.6; pointer-events:none;}
+.search-count{font-size:12px; color:var(--tb-text-mute); white-space:nowrap;}
+
+.btn{
+  border:1px solid var(--tb-ctrl-border); background:var(--tb-ctrl-bg); color:var(--tb-text);
+  padding:8px 14px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer;
+  font-family:var(--font); display:inline-flex; align-items:center; gap:6px; white-space:nowrap;
+}
+.btn:hover{background:var(--tb-ctrl-hover);}
+.btn.primary{background:var(--red); border-color:var(--red); color:#fff;}
+.btn.primary:hover{background:var(--red-dark);}
+
+.sync{font-size:12px; color:var(--tb-text-mute); display:flex; align-items:center; gap:6px;}
+.sync .dot{width:7px; height:7px; border-radius:50%; background:#5cb85c; transition:background .2s;}
+.sync.saving .dot{background:#f0ad4e;}
+
+/* ── 메모장 ───────────────────────── */
+.memo-wrap{position:relative;}
+.memo-badge{
+  display:none; width:7px; height:7px; border-radius:50%; margin-left:6px;
+  background:var(--red); vertical-align:middle;
+}
+.memo-badge.show{display:inline-block;}
+.memo-panel{
+  position:absolute; top:calc(100% + 8px); right:0; width:320px; max-width:86vw;
+  background:var(--paper); border:1px solid var(--border); border-radius:12px;
+  box-shadow:0 14px 40px rgba(0,0,0,.35);
+  display:flex; flex-direction:column; overflow:hidden;
+  opacity:0; transform:translateY(-6px); pointer-events:none; transition:opacity .15s, transform .15s;
+  z-index:10;
+  resize:both; min-width:280px; min-height:230px; max-width:640px; max-height:80vh;
+}
+.memo-panel.show{opacity:1; transform:translateY(0); pointer-events:auto;}
+.memo-panel-header{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:11px 14px; border-bottom:1px solid var(--border); background:var(--paper-muted);
+}
+.memo-panel-header strong{font-size:13px; color:var(--text);}
+.memo-close{border:none; background:transparent; font-size:16px; color:var(--text-mute); cursor:pointer; line-height:1; padding:2px 6px; border-radius:4px;}
+.memo-close:hover{background:var(--paper-hover); color:var(--text);}
+.board-meta{padding:8px 14px; font-size:11px; color:var(--text-mute); border-bottom:1px solid var(--border); background:var(--paper-muted);}
+
+.board-toolbar{
+  display:flex; align-items:center; gap:5px; padding:6px 10px;
+  border-bottom:1px solid var(--border); background:var(--paper-muted); flex-wrap:wrap;
+}
+.board-tool-btn{
+  width:26px; height:26px; border:1px solid var(--border); background:#fff; border-radius:6px;
+  cursor:pointer; font-size:12px; color:var(--text); display:flex; align-items:center; justify-content:center;
+  font-family:var(--font); line-height:1; padding:0;
+}
+.board-tool-btn:hover{background:var(--paper-hover);}
+.board-tool-sep{width:1px; height:18px; background:var(--border); margin:0 3px;}
+.board-color-swatch{
+  width:19px; height:19px; border-radius:50%; border:2px solid #fff; box-shadow:0 0 0 1px var(--border);
+  cursor:pointer; padding:0;
+}
+.board-color-swatch:hover{box-shadow:0 0 0 1.5px var(--text-mute);}
+
+.board-textarea{
+  display:block; width:100%; border:none; padding:12px 14px;
+  font-family:var(--font); font-size:13px; background:var(--paper);
+  color:var(--text); line-height:1.6; box-sizing:border-box;
+  flex:1 1 auto; min-height:80px; overflow-y:auto;
+}
+.board-textarea:focus{outline:none; background:#fff;}
+.board-textarea:empty:before{content:attr(data-placeholder); color:var(--text-mute); pointer-events:none;}
+.board-footer{
+  display:flex; align-items:center; gap:8px; padding:10px 12px;
+  border-top:1px solid var(--border); background:var(--paper-muted);
+}
+.board-footer input{
+  flex:0 0 90px; border:1px solid var(--border); border-radius:8px; padding:6px 8px;
+  font-size:12px; font-family:var(--font); background:#fff; color:var(--text);
+}
+.board-footer input:focus{outline:none; border-color:var(--red);}
+.board-save-status{font-size:11px; color:var(--text-mute); margin-left:auto;}
+
+/* ── 테이블 ───────────────────────── */
+.table-wrap{
+  margin:16px 20px 40px; background:var(--paper); border:1px solid var(--border); border-radius:10px;
+  overflow:auto; max-height:calc(100vh - 130px);
+  box-shadow:0 10px 34px rgba(0,0,0,.4);
+}
+table{border-collapse:separate; border-spacing:0; font-size:13px; table-layout:fixed;}
+thead th{
+  position:sticky; top:0; z-index:5; background:var(--paper-muted); border-bottom:2px solid var(--border);
+  border-right:1px solid var(--border); padding:0; white-space:nowrap; overflow:hidden;
+}
+th .th-inner{position:relative; padding:10px 16px 10px 10px; font-weight:700; color:var(--gray); display:flex; align-items:center; justify-content:center; gap:4px; overflow:hidden;}
+th .th-inner > span:first-of-type{overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0;}
+tbody td{border-bottom:1px solid var(--border); border-right:1px solid var(--border); padding:0; text-align:center; vertical-align:middle; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+tbody tr:hover td{background:var(--paper-hover);}
+tbody tr:last-child td{border-bottom:none;}
+
+/* 열 너비 조절 핸들 */
+.col-resizer{
+  position:absolute; top:0; right:-3px; bottom:0; width:7px; cursor:col-resize; z-index:30; user-select:none;
+}
+.col-resizer:hover{background:rgba(231,0,18,.28);}
+th.add-col .col-resizer{display:none;}
+
+/* 고정(읽기전용) 열 */
+td.fixed, th.fixed .th-inner{color:var(--text);}
+td.fixed{background:var(--paper-muted); color:#3a3a3e; font-size:12.5px; padding:9px 8px;}
+td.fixed.name{text-align:left; font-weight:600; font-size:14.5px; color:var(--gray);}
+td.fixed.status.has-value{background:var(--amber);}
+td.fixed.status{font-size:12px; color:var(--gray);}
+
+/* sticky 좌측 열: 순번 / 업체코드 / 업체명 (너비는 colgroup이 결정) */
+th.col-no, td.col-no{position:sticky; left:0; z-index:3;}
+th.col-code, td.col-code{position:sticky; left:var(--left-code); z-index:3;}
+th.col-name, td.col-name{position:sticky; left:var(--left-name); z-index:3; box-shadow:var(--sticky-shadow);}
+thead th.col-no, thead th.col-code, thead th.col-name{z-index:6; background:var(--paper-muted);}
+td.col-no{background:var(--paper-muted);}
+tbody tr:hover td.col-no{background:var(--paper-hover);}
+
+/* 업체코드 — 항상 파란 톤으로 구분 */
+td.col-code{background:var(--code-name-bg) !important;}
+thead th.col-code{background:var(--code-name-bg);}
+tbody tr:hover td.col-code{background:var(--code-name-bg-hover) !important;}
+
+/* 업체명 — 기본은 회색 글자 · "데이터 업로드" 체크시에만 파란 배경 (호버해도 유지) */
+td.col-name{background:var(--paper-muted) !important;}
+thead th.col-name{background:var(--paper-muted);}
+td.col-name.data-uploaded{background:var(--code-name-bg) !important; color:var(--text) !important;}
+
+/* 교정확인서 체크된 행 — 업체코드·업체명을 진한 블루로 강조 (최우선) */
+tr.confirmed-row td.col-code, tr.confirmed-row td.col-name{
+  background:var(--code-name-bg-dark) !important; color:#eaf1fb !important;
+}
+tr.confirmed-row:hover td.col-code, tr.confirmed-row:hover td.col-name{
+  background:var(--code-name-bg-dark-hover) !important;
+}
+
+td.col-no{color:var(--text-mute); font-size:11.5px;}
+td.col-rep, td.col-phone, td.col-pages{font-size:12.5px;}
+
+td.cb-dataupload input[type=checkbox]{accent-color:#b7b8bd;}
+td.cb-dataupload input[type=checkbox]:focus{outline:none;}
+
+/* 편집 가능 셀 */
+td.editable{padding:0; background:var(--paper);}
+td.editable input{
+  width:100%; height:100%; border:none; background:transparent; padding:9px 10px;
+  font-size:13px; font-family:var(--font); text-align:center; color:var(--text);
+}
+td.editable input:focus{outline:none;}
+
+td.note-cell{cursor:pointer; padding:0;}
+.note-preview{
+  padding:9px 10px; text-align:left; font-size:12.5px; color:var(--text);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+td.note-cell:hover{background:var(--paper-hover);}
+
+.note-modal{width:400px;}
+#noteModalTextarea{
+  width:100%; min-height:150px; padding:10px 12px; border:1px solid var(--border); border-radius:8px;
+  font-family:var(--font); font-size:13.5px; line-height:1.6; resize:vertical; margin-bottom:14px; box-sizing:border-box;
+}
+#noteModalTextarea:focus{outline:none; border-color:var(--red);}
+
+td.checkbox-cell{cursor:pointer;}
+td.checkbox-cell input[type=checkbox]{
+  width:17px; height:17px; cursor:pointer; vertical-align:middle;
+}
+td.cb-upload input[type=checkbox]{accent-color:var(--check-green);}
+td.cb-confirm input[type=checkbox]{accent-color:var(--red);}
+td.cb-upload input[type=checkbox]:focus{outline:none;}
+td.cb-confirm input[type=checkbox]:focus{outline:none;}
+
+th.extra .th-inner{gap:2px;}
+.col-remove{
+  border:none; background:transparent; color:var(--text-mute); cursor:pointer; font-size:14px;
+  line-height:1; padding:2px 4px; border-radius:4px; opacity:0; transition:opacity .15s;
+}
+th.extra:hover .col-remove{opacity:1;}
+.col-remove:hover{background:#ffe1e1; color:var(--red);}
+
+th.add-col{width:52px;}
+.add-col-btn{
+  width:100%; height:100%; border:none; background:transparent; color:var(--text-mute);
+  font-size:18px; cursor:pointer; padding:10px 0;
+}
+.add-col-btn:hover{color:var(--red); background:var(--gray-light);}
+
+.empty-note{padding:60px 20px; text-align:center; color:var(--text-mute); font-size:13px;}
+
+/* ── 실행취소 토스트 ───────────────────────── */
+.undo-toast{
+  position:fixed; left:50%; bottom:26px; transform:translate(-50%, 16px);
+  background:#1f2024; color:#f0f0f1; border:1px solid #35363c; border-radius:10px;
+  padding:12px 10px 12px 18px; display:flex; align-items:center; gap:16px;
+  box-shadow:0 12px 34px rgba(0,0,0,.45); z-index:150; font-size:13px;
+  opacity:0; pointer-events:none; transition:opacity .18s ease, transform .18s ease;
+}
+.undo-toast.show{opacity:1; transform:translate(-50%, 0); pointer-events:auto;}
+.undo-toast-btn{
+  background:transparent; border:none; color:#6fa8ff; font-weight:700; font-size:13px;
+  cursor:pointer; padding:6px 10px; border-radius:6px; font-family:var(--font);
+}
+.undo-toast-btn:hover{background:rgba(111,168,255,.14);}
+
+/* ── 열 추가 모달 ───────────────────────── */
+.modal-backdrop{
+  position:fixed; inset:0; background:rgba(20,20,22,.35); z-index:100;
+  display:none; align-items:center; justify-content:center;
+}
+.modal-backdrop.show{display:flex;}
+.modal{
+  background:var(--paper); border-radius:12px; padding:22px; width:320px;
+  box-shadow:0 12px 40px rgba(0,0,0,.18);
+}
+.modal h3{margin:0 0 4px; font-size:15px;}
+.modal p{margin:0 0 14px; font-size:12.5px; color:var(--text-mute);}
+.modal input{
+  width:100%; padding:10px 12px; border:1px solid var(--border); border-radius:8px;
+  font-size:14px; font-family:var(--font); margin-bottom:14px;
+}
+.modal input:focus{outline:none; border-color:var(--red);}
+.modal-actions{display:flex; gap:8px; justify-content:flex-end;}
+
+/* ── 로딩 오버레이 ───────────────────────── */
+#loadingOverlay{
+  position:fixed; inset:0; background:var(--bg); z-index:200;
+  display:flex; align-items:center; justify-content:center; flex-direction:column; gap:10px;
+}
+.spinner{width:28px; height:28px; border:3px solid var(--tb-ctrl-border); border-top-color:var(--red); border-radius:50%; animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+#loadingOverlay span{font-size:13px; color:var(--tb-text-mute);}
+
+/* ── 인쇄 ───────────────────────── */
+@media print{
+  .topbar, .modal-backdrop, .add-col, .col-remove, .col-resizer, .undo-toast{display:none !important;}
+  .table-wrap{margin:0; border:none; max-height:none; overflow:visible;}
+  th.col-no, td.col-no, th.col-code, td.col-code, th.col-name, td.col-name{position:static; box-shadow:none;}
+  body{background:#fff;}
+}
+
+mark{background:#ffe58a; color:inherit; border-radius:2px;}
+</style>
+</head>
+<body>
+
+<div id="loadingOverlay"><div class="spinner"></div><span>데이터 불러오는 중...</span></div>
+
+<div class="topbar">
+  <div class="brand">
+    <h1>KGM<span class="accent">카탈로그</span> 업데이트 현황</h1>
+    <small>갑우 콘텐츠사업부</small>
+  </div>
+
+  <div class="stats" id="statsBar"></div>
+
+  <div class="search-wrap">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9c9da4" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+    <input id="searchInput" type="text" placeholder="업체명·대표자·코드 검색">
+  </div>
+  <span class="search-count" id="searchCount"></span>
+
+  <div class="memo-wrap" id="memoWrap">
+    <button class="btn" id="memoBtn">칠판<span class="memo-badge" id="memoBadge"></span></button>
+    <div class="memo-panel" id="memoPanel">
+      <div class="memo-panel-header">
+        <strong>작업 칠판</strong>
+        <button class="memo-close" id="memoCloseBtn" title="닫기">×</button>
+      </div>
+      <div class="board-meta" id="boardMeta">아직 작성된 내용이 없어요.</div>
+      <div class="board-toolbar">
+        <button type="button" class="board-tool-btn" id="boardBoldBtn" title="굵게"><b>B</b></button>
+        <button type="button" class="board-tool-btn" id="boardStrikeBtn" title="취소선(삭제 표시)"><s>S</s></button>
+        <span class="board-tool-sep"></span>
+        <button type="button" class="board-color-swatch" data-color="#222226" style="background:#222226" title="검정"></button>
+        <button type="button" class="board-color-swatch" data-color="#e70012" style="background:#e70012" title="빨강"></button>
+        <button type="button" class="board-color-swatch" data-color="#2f6fda" style="background:#2f6fda" title="파랑"></button>
+        <button type="button" class="board-color-swatch" data-color="#1f9d55" style="background:#1f9d55" title="초록"></button>
+        <button type="button" class="board-color-swatch" data-color="#9a9a9f" style="background:#9a9a9f" title="회색"></button>
+      </div>
+      <div id="boardEditable" class="board-textarea" contenteditable="true" data-placeholder="여기에 자유롭게 메모를 남기세요. 자동 저장되고 다른 사람 화면에도 실시간으로 보여요."></div>
+      <div class="board-footer">
+        <input type="text" id="memoAuthorInput" placeholder="이름" maxlength="12">
+        <span class="board-save-status" id="boardSaveStatus"></span>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn" id="excelBtn">엑셀 저장</button>
+  <button class="btn" id="printBtn">인쇄</button>
+  <div class="sync" id="syncIndicator"><span class="dot"></span><span id="syncText">동기화됨</span></div>
+</div>
+
+<div class="table-wrap">
+  <table id="mainTable">
+    <colgroup id="tableColgroup"></colgroup>
+    <thead id="tableHead"></thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+</div>
+
+<div class="modal-backdrop" id="colModalBackdrop">
+  <div class="modal">
+    <h3>열 추가</h3>
+    <p>예: 1교 전화, 2교 전화, 특이사항 등</p>
+    <input type="text" id="colNameInput" placeholder="열 이름 입력" maxlength="20">
+    <div class="modal-actions">
+      <button class="btn" id="colCancelBtn">취소</button>
+      <button class="btn primary" id="colAddBtn">추가</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="noteModalBackdrop">
+  <div class="modal note-modal">
+    <h3 id="noteModalTitle">비고 편집</h3>
+    <textarea id="noteModalTextarea" placeholder="자유롭게 입력하세요. 줄바꿈도 가능해요." maxlength="500"></textarea>
+    <div class="modal-actions">
+      <button class="btn" id="noteCancelBtn">취소</button>
+      <button class="btn primary" id="noteSaveBtn">저장</button>
+    </div>
+  </div>
+</div>
+
+<div class="undo-toast" id="undoToast">
+  <span id="undoToastText"></span>
+  <button class="undo-toast-btn" id="undoToastBtn">실행취소</button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script>
+/* ════════════════════════════════════════════
+   고정 참조 데이터 (PDF 원본 그대로 — 수정 대상 아님)
+════════════════════════════════════════════ */
+const COMPANIES = [{"id":1,"code":"1","name":"㈜ 153코리아","rep":"방유미","phone":"031-558-1211","pages":"6","status":""},{"id":2,"code":"2","name":"T04","rep":"김병수","phone":"053-255-5249","pages":"","status":""},{"id":3,"code":"6","name":"갓웍스미래㈜","rep":"김경식","phone":"02-2274-8177","pages":"3","status":""},{"id":4,"code":"7","name":"광일광고포장","rep":"박광현","phone":"02-2266-6940","pages":"","status":""},{"id":5,"code":"8","name":"㈜ 그린페이퍼에코","rep":"이승호","phone":"1544-9185","pages":"16","status":""},{"id":6,"code":"9","name":"극동상사","rep":"최명환","phone":"053-944-0611","pages":"2","status":"작년동일"},{"id":7,"code":"10","name":"글로리기프트","rep":"최성수","phone":"02-1544-2420","pages":"","status":""},{"id":8,"code":"11","name":"㈜ 기가테라스","rep":"임정일","phone":"1899-1961","pages":"","status":""},{"id":9,"code":"12","name":"㈜ 기프트원","rep":"원용길","phone":"031-491-1182","pages":"23","status":""},{"id":10,"code":"13","name":"꿈담아기업","rep":"송영철","phone":"031-938-7785","pages":"2","status":""},{"id":11,"code":"14","name":"㈜ 나성상사","rep":"김종상","phone":"053-638-3034","pages":"0","status":""},{"id":12,"code":"15","name":"㈜ 누리참","rep":"박현애","phone":"1588-2506","pages":"8","status":""},{"id":13,"code":"16","name":"뉴데이트상사","rep":"조병섭","phone":"02-833-0666","pages":"3","status":"05월 27일"},{"id":14,"code":"17","name":"㈜ 다옥인터내셔널","rep":"최경혜","phone":"031-726-3167","pages":"","status":""},{"id":15,"code":"18","name":"올모크리에이티브스튜디오","rep":"김민경","phone":"1566-8726","pages":"19","status":""},{"id":16,"code":"19","name":"다인상사","rep":"최인환","phone":"051-204-6690","pages":"","status":""},{"id":17,"code":"20","name":"㈜ 달구벌씨엠","rep":"이희호","phone":"053-761-3996","pages":"6","status":""},{"id":18,"code":"21","name":"대신모자","rep":"곽대영","phone":"053-426-2100","pages":"4","status":"05월 27일"},{"id":19,"code":"23","name":"대영화학","rep":"박창옥","phone":"010-5289-8055","pages":"1","status":""},{"id":20,"code":"24","name":"대왕크린","rep":"이신곤","phone":"1566-2101","pages":"4","status":""},{"id":21,"code":"25","name":"대원상장케이스","rep":"김재현","phone":"053-962-0003","pages":"","status":""},{"id":22,"code":"26","name":"대진","rep":"김연풍","phone":"042-486-1105","pages":"1","status":"05월 22일"},{"id":23,"code":"27","name":"도브코리아","rep":"이대희","phone":"053-768-9337","pages":"0","status":""},{"id":24,"code":"29","name":"동방실업","rep":"추한용","phone":"02-2267-4427~8","pages":"4","status":""},{"id":25,"code":"30","name":"동우산업","rep":"김성우","phone":"042-222-6730","pages":"10","status":""},{"id":26,"code":"31","name":"디지크린","rep":"이상출","phone":"031-5180-7330","pages":"2","status":""},{"id":27,"code":"32","name":"㈜ 따뜻한세상","rep":"이현우","phone":"070-4365-5840","pages":"1","status":""},{"id":28,"code":"33","name":"레브","rep":"나윤상","phone":"070-8872-2100","pages":"","status":""},{"id":29,"code":"34","name":"㈜ 리앙티앤씨","rep":"이현복","phone":"042-545-5486","pages":"1","status":""},{"id":30,"code":"35","name":"㈜ 링크라인코리아","rep":"하태호","phone":"02-2215-2812","pages":"","status":""},{"id":31,"code":"36","name":"마스터교역","rep":"최효종","phone":"02-2026-6206","pages":"1","status":""},{"id":32,"code":"37","name":"㈜ 문화산업","rep":"박태집","phone":"042-638-6617~9","pages":"3","status":""},{"id":33,"code":"38","name":"미성에스티","rep":"송화준","phone":"032-612-7091","pages":"1","status":""},{"id":34,"code":"39","name":"방향제","rep":"오정환","phone":"02-2696-5523","pages":"2","status":"05월 28일"},{"id":35,"code":"40","name":"㈜ 번창디앤피","rep":"추영진","phone":"02-2272-2765","pages":"","status":""},{"id":36,"code":"41","name":"㈜ 부흥사다이어리","rep":"백종현","phone":"1588-4528","pages":"6","status":""},{"id":37,"code":"42","name":"비와우산","rep":"신창균","phone":"1899-4350","pages":"","status":""},{"id":38,"code":"43","name":"삼인물산㈜","rep":"장기호","phone":"02-2679-0216","pages":"2","status":""},{"id":39,"code":"44","name":"㈜ 새롬아트","rep":"정우동","phone":"051-316-0090","pages":"13","status":""},{"id":40,"code":"45","name":"샤이나타올","rep":"오태삼","phone":"042-624-8171","pages":"","status":""},{"id":41,"code":"46","name":"성현우피치","rep":"안성철","phone":"02-701-8778","pages":"","status":""},{"id":42,"code":"47","name":"㈜ 성협공예","rep":"채성순","phone":"02-2265-0781","pages":"","status":""},{"id":43,"code":"48","name":"세미오콜렉션","rep":"박금희","phone":"02-338-5181~4","pages":"3","status":""},{"id":44,"code":"49","name":"세종기업㈜","rep":"신기철","phone":"031-984-8148","pages":"","status":""},{"id":45,"code":"50","name":"송월타올수건이야기㈜","rep":"조일진","phone":"02-6406-9090","pages":"2","status":""},{"id":46,"code":"51","name":"㈜ 송월타올앤리빙","rep":"이정길","phone":"070-4407-1137","pages":"6","status":""},{"id":47,"code":"52","name":"㈜ 수건넷","rep":"정현미","phone":"031-469-0818","pages":"2","status":""},{"id":48,"code":"53","name":"㈜ 스타양행","rep":"김영석","phone":"02-988-0030","pages":"8","status":""},{"id":49,"code":"54","name":"시계나라","rep":"한상열","phone":"02-6101-6002","pages":"","status":""},{"id":50,"code":"55","name":"신광종합광고","rep":"김종수","phone":"02-725-8047~8","pages":"","status":""},{"id":51,"code":"56","name":"신성트레이드","rep":"전규일","phone":"02-469-3117","pages":"3","status":""},{"id":52,"code":"57","name":"㈜ 신시대","rep":"김홍태","phone":"053-384-4264","pages":"","status":""},{"id":53,"code":"58","name":"씨앤피우드","rep":"김근우","phone":"053-256-6953","pages":"","status":""},{"id":54,"code":"59","name":"씨엔티기프트","rep":"정해윤","phone":"070-4762-3328","pages":"4","status":""},{"id":55,"code":"60","name":"아미덴 주식회사","rep":"강희문","phone":"1566-7254","pages":"2","status":""},{"id":56,"code":"61","name":"㈜ 아윤","rep":"금석훈","phone":"031-944-7055","pages":"1","status":""},{"id":57,"code":"62","name":"아이에코아이","rep":"조경순","phone":"070-5055-4876","pages":"","status":""},{"id":58,"code":"63","name":"아이피글로벌","rep":"안미애","phone":"055-344-0780","pages":"1","status":""},{"id":59,"code":"65","name":"㈜ 에셈컴퍼니","rep":"권혁민","phone":"02-407-8026","pages":"","status":""},{"id":60,"code":"66","name":"에스제이아이엠㈜","rep":"하헌선","phone":"02-2633-1609","pages":"","status":""},{"id":61,"code":"67","name":"㈜ 에이치아이에스컴퍼","rep":"송주성","phone":"053-744-8808","pages":"","status":""},{"id":62,"code":"68","name":"㈜ 엘와이씨","rep":"임미희","phone":"070-4131-0522","pages":"3","status":""},{"id":63,"code":"69","name":"㈜ 엠커머스","rep":"문봉명","phone":"02-534-6727","pages":"6","status":"05월 26일"},{"id":64,"code":"70","name":"영스카이㈜","rep":"이승준","phone":"02-467-1885","pages":"5","status":""},{"id":65,"code":"71","name":"㈜ 영인기프트","rep":"한영숙","phone":"02-498-7500","pages":"","status":""},{"id":66,"code":"72","name":"㈜ 영진코스텐","rep":"문기호","phone":"02-2606-4007","pages":"2","status":""},{"id":67,"code":"73","name":"예담타월","rep":"김세철","phone":"02-2278-3200","pages":"12","status":""},{"id":68,"code":"74","name":"㈜ 예스피피","rep":"이진욱","phone":"031-542-8836","pages":"","status":""},{"id":69,"code":"75","name":"㈜ 오성우산","rep":"이승수","phone":"02-2299-9393","pages":"5","status":""},{"id":70,"code":"76","name":"오케이스픈","rep":"유준영","phone":"070-7780-2244","pages":"4","status":""},{"id":71,"code":"77","name":"와이제이산업","rep":"이건욱","phone":"02-546-8807-8","pages":"","status":""},{"id":72,"code":"78","name":"우경상사","rep":"어수흥","phone":"02-2628-5518","pages":"3","status":""},{"id":73,"code":"79","name":"㈜ 원빈다이어리","rep":"임원빈","phone":"1688-6621","pages":"1","status":"작년동일"},{"id":74,"code":"80","name":"위드컴퍼니","rep":"박우성","phone":"070-4827-5694","pages":"2","status":""},{"id":75,"code":"81","name":"㈜ 유닉스글로벌","rep":"김충환","phone":"02-2698-2588","pages":"","status":""},{"id":76,"code":"82","name":"㈜ 유비코리아","rep":"모현","phone":"070-4912-2681","pages":"0","status":""},{"id":77,"code":"83","name":"㈜ 유케이코리아","rep":"조환희","phone":"1644-2703","pages":"","status":""},{"id":78,"code":"84","name":"㈜ 인스푼","rep":"김종환","phone":"02-817-7807","pages":"2","status":""},{"id":79,"code":"85","name":"㈜ 인현","rep":"유경희","phone":"02-755-9144","pages":"","status":""},{"id":80,"code":"86","name":"㈜ 일경훼미리","rep":"이재덕","phone":"02-861-5223","pages":"","status":""},{"id":81,"code":"87","name":"자람산업","rep":"김대중","phone":"02-895-6803","pages":"6","status":""},{"id":82,"code":"88","name":"㈜ 재승그룹","rep":"임승만","phone":"031-922-0090","pages":"","status":""},{"id":83,"code":"89","name":"제이원산업","rep":"이동원","phone":"031-791-9688","pages":"4","status":""},{"id":84,"code":"90","name":"㈜ 조아박스","rep":"최주헌","phone":"031-909-1338","pages":"2","status":"05월 26일"},{"id":85,"code":"91","name":"㈜ 조인트크리에이티브","rep":"박형우","phone":"02-3443-2631","pages":"4","status":"05월 28일"},{"id":86,"code":"92","name":"(구.은송상사)주렁주렁","rep":"조영호","phone":"02-2265-8800","pages":"1","status":""},{"id":87,"code":"94","name":"지성아이엔씨","rep":"박지연","phone":"032-665-3671~4","pages":"2","status":""},{"id":88,"code":"95","name":"지앤피마케팅","rep":"차희석","phone":"031-338-9918","pages":"2","status":""},{"id":89,"code":"96","name":"㈜ 지엠마트","rep":"김진영","phone":"02)862-1001","pages":"0","status":""},{"id":90,"code":"97","name":"진성산업","rep":"김용진","phone":"02-324-5633","pages":"","status":""},{"id":91,"code":"98","name":"청암타올판촉물","rep":"황정성","phone":"053-255-2922","pages":"","status":""},{"id":92,"code":"99","name":"해피에이아이㈜","rep":"신동만","phone":"1800-3327","pages":"1","status":"작년동일"},{"id":93,"code":"100","name":"카우앤소","rep":"이양일","phone":"02-2025-4270~2","pages":"4","status":""},{"id":94,"code":"101","name":"해림컴퍼니","rep":"최영윤","phone":"070-8891-2589","pages":"","status":""},{"id":95,"code":"102","name":"케이엘피코리아㈜","rep":"김관택","phone":"02-2103-5757","pages":"","status":""},{"id":96,"code":"103","name":"㈜ 대하상사","rep":"하재백","phone":"031-8049-8983","pages":"4","status":""},{"id":97,"code":"105","name":"큐라인","rep":"이미옥","phone":"02-471-6678","pages":"","status":""},{"id":98,"code":"106","name":"㈜ 크린원","rep":"정성민","phone":"053-955-8333","pages":"4","status":""},{"id":99,"code":"107","name":"㈜ 탑크린","rep":"박길수","phone":"031-821-9962","pages":"4","status":""},{"id":100,"code":"108","name":"토탈플러스","rep":"정충권","phone":"051-806-4441","pages":"","status":""},{"id":101,"code":"109","name":"티앤티스포츠","rep":"복진범","phone":"053-428-1717","pages":"4","status":"작년동일"},{"id":102,"code":"110","name":"티플러스","rep":"조현재","phone":"053-525-7094~5","pages":"","status":""},{"id":103,"code":"111","name":"㈜ 팔공엠앤씨","rep":"김진영","phone":"1833-3480","pages":"28","status":""},{"id":104,"code":"112","name":"퍼펙트코리아","rep":"송호선","phone":"031-333-0770","pages":"4","status":""},{"id":105,"code":"114","name":"㈜ 플씨드","rep":"곽민준","phone":"070-4144-0852","pages":"2","status":""},{"id":106,"code":"115","name":"㈜ 피알판촉","rep":"박상규","phone":"02-865-8787","pages":"1","status":""},{"id":107,"code":"117","name":"하나몰","rep":"김기현","phone":"051-517-8760","pages":"","status":""},{"id":108,"code":"118","name":"하나테크툴","rep":"오철환","phone":"02-429-0743","pages":"","status":""},{"id":109,"code":"119","name":"하나한","rep":"황태운","phone":"031-378-4263","pages":"","status":""},{"id":110,"code":"120","name":"㈜ 하모니헬스케어","rep":"최성규","phone":"070-4647-4005","pages":"17","status":""},{"id":111,"code":"121","name":"하우앤","rep":"김남식","phone":"02-2256-2544","pages":"","status":""},{"id":112,"code":"122","name":"㈜ 한결비앤에프","rep":"심형섭","phone":"1544-7208","pages":"2","status":"작년동일"},{"id":113,"code":"123","name":"한국막세마","rep":"황승원","phone":"031-907-3081","pages":"6","status":""},{"id":114,"code":"125","name":"한남인쇄공사","rep":"권영호","phone":"070-7731-8938","pages":"","status":""},{"id":115,"code":"126","name":"㈜ 한밭물류","rep":"강미순","phone":"042-471-1093","pages":"2","status":"05월 21일"},{"id":116,"code":"127","name":"한원산업","rep":"한석","phone":"053-939-0761","pages":"8","status":"05월 23일"},{"id":117,"code":"128","name":"해피온","rep":"김민정","phone":"070-7435-8000","pages":"2","status":""},{"id":118,"code":"129","name":"허브에프앤씨(F&C)","rep":"황인수","phone":"054-971-3392","pages":"2","status":""},{"id":119,"code":"130","name":"현대코리아","rep":"김경환","phone":"051-242-3312","pages":"","status":""},{"id":120,"code":"131","name":"협동양산","rep":"곽병의","phone":"02-2263-2323","pages":"6","status":""},{"id":121,"code":"132","name":"㈜ 협진티앤디","rep":"김용찬","phone":"053-383-9210~1","pages":"6","status":""},{"id":122,"code":"133","name":"㈜ 화신인더스트리","rep":"도기학","phone":"042-823-2451","pages":"1","status":""},{"id":123,"code":"134","name":"유니크","rep":"최재기","phone":"053-653-4414","pages":"5","status":""},{"id":124,"code":"135","name":"메이크띵스","rep":"김윤희","phone":"02-6953-4556","pages":"2","status":""},{"id":125,"code":"137","name":"㈜ 이지누리","rep":"노윤철","phone":"031-576-2137","pages":"","status":""},{"id":126,"code":"300","name":"국보티엠시","rep":"박근수","phone":"02-3141-9300","pages":"0","status":""},{"id":127,"code":"301","name":"㈜ 글로벌아토","rep":"남상규","phone":"1588-6845","pages":"","status":""},{"id":128,"code":"302","name":"㈜ 대상크리스탈시상품","rep":"이예리","phone":"051-816-5400","pages":"6","status":""},{"id":129,"code":"304","name":"부강아크릴","rep":"김부강","phone":"053-254-6510","pages":"","status":""},{"id":130,"code":"305","name":"삼성아크랜드","rep":"김주억","phone":"053-252-5111","pages":"2","status":""},{"id":131,"code":"306","name":"새원종합트로피 이젠","rep":"김용식","phone":"053-423-8112","pages":"2","status":""},{"id":132,"code":"307","name":"㈜ 애드앤메디","rep":"김봉준","phone":"070-8737-8878","pages":"4","status":""},{"id":133,"code":"308","name":"우림크리스탈","rep":"임홍규","phone":"053-425-1714","pages":"2","status":""},{"id":134,"code":"309","name":"㈜ 유덕에스앤씨","rep":"박현수","phone":"02-2275-2939","pages":"","status":""},{"id":135,"code":"311","name":"종합광고우신","rep":"김태진","phone":"053-421-8638","pages":"","status":""},{"id":136,"code":"312","name":"페이스스토리","rep":"장찬범","phone":"031-383-4706","pages":"","status":""},{"id":137,"code":"313","name":"한진기업","rep":"방석길","phone":"02-2265-2147","pages":"2","status":"작년동일"},{"id":138,"code":"314","name":"㈜ 헤브론","rep":"김경환","phone":"02-2264-7911","pages":"10","status":""},{"id":139,"code":"","name":"동양산업","rep":"유갑상","phone":"031-966-6338","pages":"","status":""},{"id":140,"code":"","name":"디딤돌","rep":"최경수","phone":"032-525-7575","pages":"","status":""},{"id":141,"code":"","name":"메트로상사","rep":"허성한","phone":"031-964-4908","pages":"","status":""},{"id":142,"code":"","name":"미림코퍼레이션","rep":"권도환","phone":"02-855-1654","pages":"","status":""},{"id":143,"code":"","name":"㈜ 서현피엠에스","rep":"김진국","phone":"02-3432-5044","pages":"","status":""},{"id":144,"code":"","name":"㈜ 성원애드피아몰","rep":"정창희","phone":"1688-6611","pages":"","status":""},{"id":145,"code":"","name":"판다기프트㈜","rep":"추민지","phone":"02-2266-8822","pages":"","status":""},{"id":146,"code":"136","name":"아이좋은사람들","rep":"김영도","phone":"02-2659-1952","pages":"","status":""},{"id":147,"code":"","name":"㈜ 프린파이","rep":"정동원","phone":"","pages":"","status":""},{"id":148,"code":"3","name":"TK상사","rep":"이준우","phone":"02-2164-9971","pages":"","status":""},{"id":149,"code":"5","name":"가온팩토리","rep":"김대석","phone":"02-2661-0707","pages":"","status":""},{"id":150,"code":"64","name":"앤츠글로벌","rep":"민황식","phone":"043-9088-9088","pages":"","status":""},{"id":151,"code":"113","name":"평화","rep":"이경미","phone":"02-416-3088","pages":"","status":""},{"id":152,"code":"310","name":"재왕자수","rep":"이도수","phone":"042-252-4111","pages":"","status":""}]
+;
+
+/* 기본 편집 열 (고정, 삭제 불가) */
+const FIXED_EDIT_COLS = [
+  {id:'up1', label:'1교업로드', type:'checkbox'},
+  {id:'up2', label:'2교업로드', type:'checkbox'},
+  {id:'up3', label:'3교업로드', type:'checkbox'},
+  {id:'confirm', label:'교정확인서', type:'checkbox'},
+  {id:'note', label:'비고', type:'text'}
+];
+
+/* ════════════════════════════════════════════
+   상태 (Firebase 실시간 동기화 대상)
+════════════════════════════════════════════ */
+let STATE = { extraCols: [], values: {} };
+let DB_REF = null;
+let BOARD_REF = null;
+let _isRemoteUpdate = false;
+let _saveTimers = {};
+
+function normalizeState(st){
+  if(!st) return;
+  if(!Array.isArray(st.extraCols)) st.extraCols = [];
+  if(!st.values || typeof st.values !== 'object') st.values = {};
+}
+
+function allCols(){
+  return FIXED_EDIT_COLS.concat(STATE.extraCols);
+}
+
+/* ════════════════════════════════════════════
+   열 너비 (브라우저별 로컬 저장 — 사람마다 다르게 볼 수 있음)
+════════════════════════════════════════════ */
+const DEFAULT_WIDTHS = {
+  no:42, code:64, name:200, upload:96, rep:84, phone:132, pages:80, status:104,
+  up1:84, up2:84, up3:84, confirm:96, note:180
+};
+let COLWIDTHS = {};
+try{ COLWIDTHS = JSON.parse(localStorage.getItem('kgmCatalogColWidths') || '{}'); }
+catch(e){ COLWIDTHS = {}; }
+
+function getColWidth(key){
+  return COLWIDTHS[key] || DEFAULT_WIDTHS[key] || 110;
+}
+function persistColWidths(){
+  try{ localStorage.setItem('kgmCatalogColWidths', JSON.stringify(COLWIDTHS)); }catch(e){}
+}
+function updateStickyOffsets(){
+  const wNo = getColWidth('no');
+  const wCode = getColWidth('code');
+  document.documentElement.style.setProperty('--left-code', wNo + 'px');
+  document.documentElement.style.setProperty('--left-name', (wNo + wCode) + 'px');
+}
+function startResize(e, key){
+  e.preventDefault();
+  const startX = e.clientX;
+  const startWidth = getColWidth(key);
+  const colEl = document.getElementById('col-w-' + key);
+  document.body.style.cursor = 'col-resize';
+  document.body.style.userSelect = 'none';
+  function onMove(ev){
+    const newW = Math.max(40, startWidth + (ev.clientX - startX));
+    COLWIDTHS[key] = newW;
+    if(colEl) colEl.style.width = newW + 'px';
+    if(key === 'no' || key === 'code') updateStickyOffsets();
+  }
+  function onUp(){
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onUp);
+    document.body.style.cursor = '';
+    document.body.style.userSelect = '';
+    persistColWidths();
+  }
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onUp);
+}
+function resetColWidth(key){
+  delete COLWIDTHS[key];
+  const colEl = document.getElementById('col-w-' + key);
+  if(colEl) colEl.style.width = getColWidth(key) + 'px';
+  if(key === 'no' || key === 'code') updateStickyOffsets();
+  persistColWidths();
+}
+
+/* ════════════════════════════════════════════
+   저장 (디바운스 + 동기화 표시)
+════════════════════════════════════════════ */
+function showSyncSaving(){
+  const el = document.getElementById('syncIndicator');
+  el.classList.add('saving');
+  document.getElementById('syncText').textContent = '저장 중...';
+}
+function showSyncSaved(){
+  const el = document.getElementById('syncIndicator');
+  el.classList.remove('saving');
+  document.getElementById('syncText').textContent = '동기화됨';
+}
+
+function saveValue(companyId, colId, value, immediate){
+  if(!STATE.values[companyId]) STATE.values[companyId] = {};
+  STATE.values[companyId][colId] = value;
+  renderStats();
+  if(!DB_REF) return;
+  const key = companyId + ':' + colId;
+  function doSave(){
+    showSyncSaving();
+    _isRemoteUpdate = true;
+    DB_REF.child('values').child(companyId).child(colId).set(value)
+      .then(()=>{ showSyncSaved(); })
+      .catch((e)=>{ console.error('저장 실패', e); showSyncSaved(); })
+      .finally(()=>{ setTimeout(()=>{_isRemoteUpdate=false;}, 300); });
+  }
+  clearTimeout(_saveTimers[key]);
+  if(immediate){
+    doSave();
+  } else {
+    showSyncSaving();
+    _saveTimers[key] = setTimeout(doSave, 450);
+  }
+}
+
+function saveExtraCols(){
+  if(!DB_REF) return;
+  showSyncSaving();
+  _isRemoteUpdate = true;
+  DB_REF.child('extraCols').set(STATE.extraCols)
+    .then(()=>{ showSyncSaved(); })
+    .finally(()=>{ setTimeout(()=>{_isRemoteUpdate=false;}, 300); });
+}
+
+/* ════════════════════════════════════════════
+   렌더링
+════════════════════════════════════════════ */
+function escapeHtml(s){
+  return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function highlight(text, query){
+  const t = escapeHtml(text);
+  if(!query) return t || '&nbsp;';
+  const idx = t.toLowerCase().indexOf(query.toLowerCase());
+  if(idx === -1) return t || '&nbsp;';
+  return t.slice(0,idx) + '<mark>' + t.slice(idx, idx+query.length) + '</mark>' + t.slice(idx+query.length);
+}
+
+function notePreviewHtml(val){
+  const raw = (val || '').toString().trim();
+  if(!raw) return '&nbsp;';
+  const firstLine = raw.split('\n')[0];
+  const isMultiline = raw.includes('\n');
+  let preview = firstLine.length > 26 ? firstLine.slice(0, 26) + '…' : firstLine;
+  if(isMultiline && preview === firstLine) preview += '…';
+  return escapeHtml(preview);
+}
+
+function renderStats(){
+  const total = COMPANIES.length;
+  const applied = COMPANIES.filter(c => c.pages && c.pages.trim() !== '').length;
+  const confirmed = COMPANIES.filter(c => STATE.values[c.id] && !!STATE.values[c.id].confirm).length;
+  document.getElementById('statsBar').innerHTML = `
+    <span class="chip">전체 <b>${total}</b>개 업체</span>
+    <span class="chip">신청 <b>${applied}</b>건</span>
+    <span class="chip confirm-chip">교정확인서 완료 <b>${confirmed}</b>건</span>
+  `;
+}
+
+function renderColgroup(cols){
+  let html = '';
+  html += `<col id="col-w-no" style="width:${getColWidth('no')}px">`;
+  html += `<col id="col-w-code" style="width:${getColWidth('code')}px">`;
+  html += `<col id="col-w-name" style="width:${getColWidth('name')}px">`;
+  html += `<col id="col-w-upload" style="width:${getColWidth('upload')}px">`;
+  html += `<col id="col-w-rep" style="width:${getColWidth('rep')}px">`;
+  html += `<col id="col-w-phone" style="width:${getColWidth('phone')}px">`;
+  html += `<col id="col-w-pages" style="width:${getColWidth('pages')}px">`;
+  html += `<col id="col-w-status" style="width:${getColWidth('status')}px">`;
+  cols.forEach(col=>{
+    html += `<col id="col-w-${col.id}" style="width:${getColWidth(col.id)}px">`;
+  });
+  html += `<col id="col-w-addcol" style="width:52px">`;
+  return html;
+}
+
+function headerCell(key, label, extraClass, removable){
+  extraClass = extraClass || '';
+  return `<th class="${extraClass}" data-col="${key}">
+      <div class="th-inner">
+        <span>${escapeHtml(label)}</span>
+        ${removable ? `<button class="col-remove" data-remove-col="${key}" title="열 삭제">×</button>` : ''}
+        <span class="col-resizer" data-resize-key="${key}" title="드래그로 너비 조절 · 더블클릭으로 초기화"></span>
+      </div>
+    </th>`;
+}
+
+function renderHead(){
+  const cols = allCols();
+  document.getElementById('tableColgroup').innerHTML = renderColgroup(cols);
+
+  let html = '<tr>';
+  html += headerCell('no', '#', 'col-no');
+  html += headerCell('code', '업체코드', 'col-code');
+  html += headerCell('name', '업체명', 'col-name');
+  html += headerCell('upload', '데이터 업로드');
+  html += headerCell('rep', '대표자');
+  html += headerCell('phone', '전화');
+  html += headerCell('pages', '신청페이지');
+  html += headerCell('status', '디자인진행상황');
+  cols.forEach(col => {
+    const isFixed = FIXED_EDIT_COLS.some(f => f.id === col.id);
+    html += headerCell(col.id, col.label, isFixed?'':'extra', !isFixed);
+  });
+  html += `<th class="add-col"><button class="add-col-btn" id="addColBtn" title="열 추가">＋</button></th>`;
+  html += '</tr>';
+  document.getElementById('tableHead').innerHTML = html;
+
+  document.getElementById('addColBtn').addEventListener('click', openColModal);
+  document.querySelectorAll('[data-remove-col]').forEach(btn=>{
+    btn.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      const colId = btn.getAttribute('data-remove-col');
+      const idx = STATE.extraCols.findIndex(c=>c.id===colId);
+      if(idx === -1) return;
+      const col = STATE.extraCols[idx];
+      if(!confirm(`"${col.label}" 열을 삭제할까요?`)) return;
+      STATE.extraCols = STATE.extraCols.filter(c=>c.id!==colId);
+      saveExtraCols();
+      renderHead();
+      renderBody();
+      showUndoToast(`"${col.label}" 열을 삭제했습니다.`, ()=>{
+        STATE.extraCols.splice(idx, 0, col);
+        saveExtraCols();
+        renderHead();
+        renderBody();
+      });
+    });
+  });
+  document.querySelectorAll('.col-resizer').forEach(handle=>{
+    const key = handle.getAttribute('data-resize-key');
+    handle.addEventListener('mousedown', (e)=> startResize(e, key));
+    handle.addEventListener('dblclick', (e)=>{ e.stopPropagation(); resetColWidth(key); });
+  });
+
+  updateStickyOffsets();
+}
+
+function renderBody(){
+  const query = document.getElementById('searchInput').value.trim();
+  const cols = allCols();
+  const tbody = document.getElementById('tableBody');
+
+  const filtered = COMPANIES.filter(c=>{
+    if(!query) return true;
+    const q = query.toLowerCase();
+    return (c.name && c.name.toLowerCase().includes(q))
+        || (c.rep && c.rep.toLowerCase().includes(q))
+        || (c.code && c.code.toLowerCase().includes(q))
+        || (c.phone && c.phone.toLowerCase().includes(q));
+  });
+
+  document.getElementById('searchCount').textContent = query ? `${filtered.length}건 검색됨` : '';
+
+  if(filtered.length === 0){
+    tbody.innerHTML = `<tr><td colspan="${8+cols.length+1}"><div class="empty-note">검색 결과가 없습니다.</div></td></tr>`;
+    return;
+  }
+
+  let html = '';
+  filtered.forEach((c, i)=>{
+    const v = STATE.values[c.id] || {};
+    html += `<tr${v.confirm ? ' class="confirmed-row"' : ''}>`;
+    html += `<td class="col-no">${i+1}</td>`;
+    html += `<td class="col-code fixed">${escapeHtml(c.code) || '&nbsp;'}</td>`;
+    html += `<td class="col-name fixed name${v.upload ? ' data-uploaded' : ''}">${highlight(c.name, query)}</td>`;
+    html += `<td class="editable checkbox-cell cb-dataupload"><input type="checkbox" data-company="${c.id}" data-col="upload" ${v.upload ? 'checked' : ''}></td>`;
+    html += `<td class="fixed col-rep">${highlight(c.rep, query)}</td>`;
+    html += `<td class="fixed col-phone">${highlight(c.phone, query)}</td>`;
+    html += `<td class="fixed col-pages">${escapeHtml(c.pages) || '<span style="color:#c9c9cc">-</span>'}</td>`;
+    html += `<td class="fixed status ${c.status ? 'has-value' : ''}">${escapeHtml(c.status) || '<span style="color:#c9c9cc">-</span>'}</td>`;
+    cols.forEach(col=>{
+      const val = v[col.id];
+      if(col.type === 'checkbox'){
+        const cbClass = col.id === 'confirm' ? 'cb-confirm' : 'cb-upload';
+        html += `<td class="editable checkbox-cell ${cbClass}"><input type="checkbox" data-company="${c.id}" data-col="${col.id}" ${val ? 'checked' : ''}></td>`;
+      } else if(col.id === 'note'){
+        html += `<td class="editable note-cell" data-company="${c.id}" title="클릭하여 편집"><div class="note-preview">${notePreviewHtml(val)}</div></td>`;
+      } else {
+        html += `<td class="editable"><input type="text" data-company="${c.id}" data-col="${col.id}" value="${escapeHtml(val || '')}"></td>`;
+      }
+    });
+    html += `<td></td>`;
+    html += '</tr>';
+  });
+  tbody.innerHTML = html;
+
+  tbody.querySelectorAll('input[type=text][data-company]').forEach(inp=>{
+    inp.addEventListener('input', ()=>{
+      saveValue(inp.getAttribute('data-company'), inp.getAttribute('data-col'), inp.value);
+    });
+  });
+  tbody.querySelectorAll('td.note-cell').forEach(td=>{
+    td.addEventListener('click', ()=>{
+      const companyId = td.getAttribute('data-company');
+      const company = COMPANIES.find(c => String(c.id) === String(companyId));
+      openNoteModal(companyId, company ? company.name : '');
+    });
+  });
+  tbody.querySelectorAll('input[type=checkbox][data-company]').forEach(inp=>{
+    inp.addEventListener('change', ()=>{
+      const colId = inp.getAttribute('data-col');
+      saveValue(inp.getAttribute('data-company'), colId, inp.checked, true);
+      const tr = inp.closest('tr');
+      if(!tr) return;
+      if(colId === 'confirm'){
+        tr.classList.toggle('confirmed-row', inp.checked);
+      } else if(colId === 'upload'){
+        const nameTd = tr.querySelector('td.col-name');
+        if(nameTd) nameTd.classList.toggle('data-uploaded', inp.checked);
+      }
+    });
+  });
+  tbody.querySelectorAll('td.checkbox-cell').forEach(td=>{
+    td.addEventListener('click', (e)=>{
+      if(e.target.tagName === 'INPUT') return;
+      const cb = td.querySelector('input[type=checkbox]');
+      if(!cb) return;
+      cb.checked = !cb.checked;
+      cb.dispatchEvent(new Event('change'));
+    });
+  });
+}
+
+function renderAll(){
+  renderStats();
+  renderHead();
+  renderBody();
+}
+
+/* ════════════════════════════════════════════
+   검색
+════════════════════════════════════════════ */
+document.getElementById('searchInput').addEventListener('input', renderBody);
+
+/* ════════════════════════════════════════════
+   열 추가 모달
+════════════════════════════════════════════ */
+function openColModal(){
+  document.getElementById('colModalBackdrop').classList.add('show');
+  const inp = document.getElementById('colNameInput');
+  inp.value = '';
+  setTimeout(()=>inp.focus(), 50);
+}
+function closeColModal(){
+  document.getElementById('colModalBackdrop').classList.remove('show');
+}
+document.getElementById('colCancelBtn').addEventListener('click', closeColModal);
+document.getElementById('colModalBackdrop').addEventListener('click', (e)=>{
+  if(e.target.id === 'colModalBackdrop') closeColModal();
+});
+function addColumn(){
+  const inp = document.getElementById('colNameInput');
+  const label = inp.value.trim();
+  if(!label) { inp.focus(); return; }
+  const id = 'ex' + Date.now();
+  STATE.extraCols.push({id, label});
+  saveExtraCols();
+  closeColModal();
+  renderHead();
+  renderBody();
+}
+document.getElementById('colAddBtn').addEventListener('click', addColumn);
+document.getElementById('colNameInput').addEventListener('keydown', (e)=>{
+  if(e.key === 'Enter') addColumn();
+  if(e.key === 'Escape') closeColModal();
+});
+
+/* ════════════════════════════════════════════
+   비고 편집 모달 (팝업)
+════════════════════════════════════════════ */
+let _noteEditingId = null;
+function openNoteModal(companyId, companyName){
+  _noteEditingId = companyId;
+  const v = STATE.values[companyId] || {};
+  document.getElementById('noteModalTitle').textContent = companyName ? `비고 편집 — ${companyName}` : '비고 편집';
+  const ta = document.getElementById('noteModalTextarea');
+  ta.value = v.note || '';
+  document.getElementById('noteModalBackdrop').classList.add('show');
+  setTimeout(()=>{ ta.focus(); }, 50);
+}
+function closeNoteModal(){
+  document.getElementById('noteModalBackdrop').classList.remove('show');
+  _noteEditingId = null;
+}
+function saveNoteModal(){
+  if(!_noteEditingId) return;
+  const val = document.getElementById('noteModalTextarea').value;
+  const companyId = _noteEditingId;
+  saveValue(companyId, 'note', val, true);
+  const cell = document.querySelector(`td.note-cell[data-company="${companyId}"] .note-preview`);
+  if(cell) cell.innerHTML = notePreviewHtml(val);
+  closeNoteModal();
+}
+document.getElementById('noteCancelBtn').addEventListener('click', closeNoteModal);
+document.getElementById('noteSaveBtn').addEventListener('click', saveNoteModal);
+document.getElementById('noteModalBackdrop').addEventListener('click', (e)=>{
+  if(e.target.id === 'noteModalBackdrop') closeNoteModal();
+});
+document.getElementById('noteModalTextarea').addEventListener('keydown', (e)=>{
+  if(e.key === 'Escape') closeNoteModal();
+  if(e.key === 'Enter' && (e.metaKey || e.ctrlKey)) saveNoteModal();
+});
+
+/* ════════════════════════════════════════════
+   실행취소 토스트
+════════════════════════════════════════════ */
+let _undoAction = null;
+let _undoTimer = null;
+function showUndoToast(message, onUndo){
+  clearTimeout(_undoTimer);
+  _undoAction = onUndo;
+  document.getElementById('undoToastText').textContent = message;
+  document.getElementById('undoToast').classList.add('show');
+  _undoTimer = setTimeout(hideUndoToast, 8000);
+}
+function hideUndoToast(){
+  document.getElementById('undoToast').classList.remove('show');
+  _undoAction = null;
+}
+document.getElementById('undoToastBtn').addEventListener('click', ()=>{
+  if(_undoAction) _undoAction();
+  hideUndoToast();
+});
+
+/* ════════════════════════════════════════════
+   인쇄
+════════════════════════════════════════════ */
+document.getElementById('printBtn').addEventListener('click', ()=> window.print());
+
+/* ════════════════════════════════════════════
+   엑셀 저장
+════════════════════════════════════════════ */
+function exportExcel(){
+  if(typeof XLSX === 'undefined'){
+    alert('엑셀 저장 기능을 불러오지 못했습니다. 인터넷 연결을 확인한 뒤 다시 시도해주세요.');
+    return;
+  }
+  const cols = allCols();
+  const header = ['순번','업체코드','업체명','데이터 업로드','대표자','전화','신청페이지','디자인진행상황', ...cols.map(c=>c.label)];
+  const rows = COMPANIES.map((c, i)=>{
+    const v = STATE.values[c.id] || {};
+    const row = [i+1, c.code, c.name, v.upload ? '완료' : '', c.rep, c.phone, c.pages, c.status];
+    cols.forEach(col=>{
+      if(col.type === 'checkbox'){
+        row.push(v[col.id] ? '완료' : '');
+      } else {
+        row.push(v[col.id] || '');
+      }
+    });
+    return row;
+  });
+  const ws = XLSX.utils.aoa_to_sheet([header, ...rows]);
+  ws['!cols'] = header.map((h, idx)=>({wch: idx===2 ? 24 : (idx===1 ? 10 : 12)}));
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'KGM카탈로그');
+  const t = new Date();
+  const stamp = `${t.getFullYear()}${String(t.getMonth()+1).padStart(2,'0')}${String(t.getDate()).padStart(2,'0')}`;
+  XLSX.writeFile(wb, `KGM카탈로그_업데이트현황_${stamp}.xlsx`);
+}
+document.getElementById('excelBtn').addEventListener('click', exportExcel);
+
+/* ════════════════════════════════════════════
+   메모장 (디자이너와의 소통)
+════════════════════════════════════════════ */
+function formatMemoTime(ts){
+  if(!ts) return '';
+  const d = new Date(ts);
+  const mm = String(d.getMonth()+1).padStart(2,'0');
+  const dd = String(d.getDate()).padStart(2,'0');
+  const hh = String(d.getHours()).padStart(2,'0');
+  const mi = String(d.getMinutes()).padStart(2,'0');
+  return `${mm}/${dd} ${hh}:${mi}`;
+}
+
+function renderBoard(data){
+  const ed = document.getElementById('boardEditable');
+  const meta = document.getElementById('boardMeta');
+  if(document.activeElement !== ed){
+    ed.innerHTML = (data && data.text) || '';
+  }
+  const hasText = !!(data && data.text && data.text.trim());
+  meta.textContent = hasText
+    ? `마지막 수정: ${escapeHtml(data.author || '익명')} · ${formatMemoTime(data.updatedAt)}`
+    : '아직 작성된 내용이 없어요.';
+  document.getElementById('memoBadge').classList.toggle('show', hasText);
+}
+
+let _boardSaveTimer = null;
+function saveBoard(){
+  const ed = document.getElementById('boardEditable');
+  if(ed.textContent.trim() === '' && ed.innerHTML !== ''){
+    ed.innerHTML = '';
+  }
+  const author = document.getElementById('memoAuthorInput').value.trim() || '익명';
+  try{ localStorage.setItem('kgmMemoAuthor', author); }catch(e){}
+  if(!BOARD_REF) return;
+  document.getElementById('boardSaveStatus').textContent = '저장 중...';
+  clearTimeout(_boardSaveTimer);
+  _boardSaveTimer = setTimeout(()=>{
+    BOARD_REF.set({ text: ed.innerHTML, author: author, updatedAt: Date.now() })
+      .then(()=>{ document.getElementById('boardSaveStatus').textContent = '저장됨'; })
+      .catch(()=>{ document.getElementById('boardSaveStatus').textContent = ''; });
+  }, 500);
+}
+document.getElementById('boardEditable').addEventListener('input', saveBoard);
+document.getElementById('memoAuthorInput').addEventListener('change', ()=>{
+  try{ localStorage.setItem('kgmMemoAuthor', document.getElementById('memoAuthorInput').value.trim()); }catch(e){}
+});
+try{
+  document.getElementById('memoAuthorInput').value = localStorage.getItem('kgmMemoAuthor') || '';
+}catch(e){}
+
+/* 서식 도구모음 — mousedown에서 기본동작을 막아 텍스트 선택이 풀리지 않게 함 */
+function ensureBoardFocus(){
+  const ed = document.getElementById('boardEditable');
+  if(document.activeElement !== ed) ed.focus();
+}
+document.querySelectorAll('.board-tool-btn, .board-color-swatch').forEach(btn=>{
+  btn.addEventListener('mousedown', (e)=> e.preventDefault());
+});
+document.getElementById('boardBoldBtn').addEventListener('click', ()=>{
+  ensureBoardFocus();
+  document.execCommand('bold');
+  saveBoard();
+});
+document.getElementById('boardStrikeBtn').addEventListener('click', ()=>{
+  ensureBoardFocus();
+  document.execCommand('strikeThrough');
+  saveBoard();
+});
+document.querySelectorAll('.board-color-swatch').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    ensureBoardFocus();
+    document.execCommand('foreColor', false, btn.getAttribute('data-color'));
+    saveBoard();
+  });
+});
+
+function onDocClickCloseMemo(e){
+  const wrap = document.getElementById('memoWrap');
+  if(wrap && !wrap.contains(e.target)) closeMemoPanel();
+}
+function openMemoPanel(){
+  document.getElementById('memoPanel').classList.add('show');
+  document.addEventListener('click', onDocClickCloseMemo);
+}
+function closeMemoPanel(){
+  document.getElementById('memoPanel').classList.remove('show');
+  document.removeEventListener('click', onDocClickCloseMemo);
+}
+document.getElementById('memoBtn').addEventListener('click', (e)=>{
+  e.stopPropagation();
+  const panel = document.getElementById('memoPanel');
+  if(panel.classList.contains('show')) closeMemoPanel(); else openMemoPanel();
+});
+document.getElementById('memoCloseBtn').addEventListener('click', closeMemoPanel);
+
+/* ════════════════════════════════════════════
+   Firebase 실시간 연동
+════════════════════════════════════════════ */
+</script>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script>
+(function(){
+  const config = {
+    apiKey:"AIzaSyDAvC3MkJDZq23kNdt2PmLDrp9uLKLs84U",
+    authDomain:"gabwoo-contents.firebaseapp.com",
+    databaseURL:"https://gabwoo-contents-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId:"gabwoo-contents",
+    storageBucket:"gabwoo-contents.firebasestorage.app",
+    messagingSenderId:"39901615316",
+    appId:"1:39901615316:web:f818749103a8ac82d89741"
+  };
+
+  firebase.initializeApp(config);
+  /* 기존 연간 프로젝트 Gantt 앱과 같은 보안 경로(gabwoo-contents-v1) 아래
+     별도 하위 경로(catalog)를 사용합니다. 기존 Firebase 보안규칙이
+     gabwoo-contents-v1 경로 전체(하위 포함)에 적용되어 있다면 별도 설정 없이 바로 동작합니다. */
+  DB_REF = firebase.database().ref('gabwoo-contents-v1/catalog');
+  BOARD_REF = firebase.database().ref('gabwoo-contents-v1/catalog/board');
+
+  function hideLoading(){
+    const el = document.getElementById('loadingOverlay');
+    if(el) el.style.display = 'none';
+  }
+
+  /* 익명 인증: 화면에는 아무 표시도 없이 자동으로 로그인 처리 → 이후 규칙에서 auth!=null 조건 통과 */
+  firebase.auth().signInAnonymously().then(startApp).catch(function(err){
+    console.error('익명 인증 실패:', err.message);
+    STATE = { extraCols: [], values: {} };
+    hideLoading();
+    renderAll();
+  });
+
+  function startApp(){
+  BOARD_REF.on('value', function(snap){
+    renderBoard(snap.val());
+  });
+
+  DB_REF.once('value').then(function(snap){
+    const data = snap.val();
+    STATE = data ? data : { extraCols: [], values: {} };
+    normalizeState(STATE);
+    if(!data){ DB_REF.set(STATE); }
+    hideLoading();
+    renderAll();
+
+    DB_REF.on('value', function(snap2){
+      if(_isRemoteUpdate) return;
+      const d = snap2.val();
+      if(!d) return;
+      STATE.extraCols = Array.isArray(d.extraCols) ? d.extraCols : [];
+      STATE.values = (d.values && typeof d.values === 'object') ? d.values : {};
+
+      // 현재 포커스 중인 입력칸은 값 갱신에서 제외 (입력 중 덮어쓰기 방지)
+      const activeCompany = document.activeElement && document.activeElement.getAttribute
+        ? document.activeElement.getAttribute('data-company') : null;
+      const activeCol = document.activeElement && document.activeElement.getAttribute
+        ? document.activeElement.getAttribute('data-col') : null;
+
+      renderStats();
+      renderHead();
+      renderBody();
+
+      if(activeCompany && activeCol){
+        const sel = `input[data-company="${activeCompany}"][data-col="${activeCol}"]`;
+        const el = document.querySelector(sel);
+        if(el) el.focus();
+      }
+    });
+  }).catch(function(err){
+    console.error('Firebase 연결 실패:', err.message);
+    STATE = { extraCols: [], values: {} };
+    hideLoading();
+    renderAll();
+  });
+  } // startApp 끝
+})();
+</script>
+</body>
+</html>
