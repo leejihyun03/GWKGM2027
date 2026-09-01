@@ -975,6 +975,7 @@ document.getElementById('memoCloseBtn').addEventListener('click', closeMemoPanel
 
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script>
 (function(){
   const config = {
@@ -989,57 +990,64 @@ document.getElementById('memoCloseBtn').addEventListener('click', closeMemoPanel
 
   firebase.initializeApp(config);
   /* 기존 연간 프로젝트 Gantt 앱과 같은 보안 경로(gabwoo-k7m9x2) 아래
-     별도 하위 경로(catalog)를 사용합니다. 기존 Firebase 보안규칙이
-     gabwoo-k7m9x2 경로 전체(하위 포함)에 적용되어 있다면 별도 설정 없이 바로 동작합니다. */
+     별도 하위 경로(catalog)를 사용합니다. */
   DB_REF = firebase.database().ref('gabwoo-k7m9x2/catalog');
   BOARD_REF = firebase.database().ref('gabwoo-k7m9x2/catalog/board');
-
-  BOARD_REF.on('value', function(snap){
-    renderBoard(snap.val());
-  });
 
   function hideLoading(){
     const el = document.getElementById('loadingOverlay');
     if(el) el.style.display = 'none';
   }
 
-  DB_REF.once('value').then(function(snap){
-    const data = snap.val();
-    STATE = data ? data : { extraCols: [], values: {} };
-    normalizeState(STATE);
-    if(!data){ DB_REF.set(STATE); }
+  /* 익명 인증: 화면에는 아무 표시도 없이 자동으로 로그인 처리 → 이후 규칙에서 auth!=null 조건 통과 */
+  firebase.auth().signInAnonymously().then(startApp).catch(function(err){
+    console.error('익명 인증 실패:', err.message);
     hideLoading();
-    renderAll();
-
-    DB_REF.on('value', function(snap2){
-      if(_isRemoteUpdate) return;
-      const d = snap2.val();
-      if(!d) return;
-      STATE.extraCols = Array.isArray(d.extraCols) ? d.extraCols : [];
-      STATE.values = (d.values && typeof d.values === 'object') ? d.values : {};
-
-      // 현재 포커스 중인 입력칸은 값 갱신에서 제외 (입력 중 덮어쓰기 방지)
-      const activeCompany = document.activeElement && document.activeElement.getAttribute
-        ? document.activeElement.getAttribute('data-company') : null;
-      const activeCol = document.activeElement && document.activeElement.getAttribute
-        ? document.activeElement.getAttribute('data-col') : null;
-
-      renderStats();
-      renderHead();
-      renderBody();
-
-      if(activeCompany && activeCol){
-        const sel = `input[data-company="${activeCompany}"][data-col="${activeCol}"]`;
-        const el = document.querySelector(sel);
-        if(el) el.focus();
-      }
-    });
-  }).catch(function(err){
-    console.error('Firebase 연결 실패:', err.message);
-    STATE = { extraCols: [], values: {} };
-    hideLoading();
-    renderAll();
   });
+
+  function startApp(){
+    BOARD_REF.on('value', function(snap){
+      renderBoard(snap.val());
+    });
+
+    DB_REF.once('value').then(function(snap){
+      const data = snap.val();
+      STATE = data ? data : { extraCols: [], values: {} };
+      normalizeState(STATE);
+      if(!data){ DB_REF.set(STATE); }
+      hideLoading();
+      renderAll();
+
+      DB_REF.on('value', function(snap2){
+        if(_isRemoteUpdate) return;
+        const d = snap2.val();
+        if(!d) return;
+        STATE.extraCols = Array.isArray(d.extraCols) ? d.extraCols : [];
+        STATE.values = (d.values && typeof d.values === 'object') ? d.values : {};
+
+        // 현재 포커스 중인 입력칸은 값 갱신에서 제외 (입력 중 덮어쓰기 방지)
+        const activeCompany = document.activeElement && document.activeElement.getAttribute
+          ? document.activeElement.getAttribute('data-company') : null;
+        const activeCol = document.activeElement && document.activeElement.getAttribute
+          ? document.activeElement.getAttribute('data-col') : null;
+
+        renderStats();
+        renderHead();
+        renderBody();
+
+        if(activeCompany && activeCol){
+          const sel = `input[data-company="${activeCompany}"][data-col="${activeCol}"]`;
+          const el = document.querySelector(sel);
+          if(el) el.focus();
+        }
+      });
+    }).catch(function(err){
+      console.error('Firebase 연결 실패:', err.message);
+      STATE = { extraCols: [], values: {} };
+      hideLoading();
+      renderAll();
+    });
+  } // startApp 끝
 })();
 </script>
 </body>
