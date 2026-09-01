@@ -975,6 +975,7 @@ document.getElementById('memoCloseBtn').addEventListener('click', closeMemoPanel
 
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script>
 (function(){
   const config = {
@@ -988,20 +989,29 @@ document.getElementById('memoCloseBtn').addEventListener('click', closeMemoPanel
   };
 
   firebase.initializeApp(config);
-  /* 기존 연간 프로젝트 Gantt 앱과 같은 보안 경로(gabwoo-k7m9x2) 아래
+  /* 기존 연간 프로젝트 Gantt 앱과 같은 보안 경로(gabwoo-contents-v1) 아래
      별도 하위 경로(catalog)를 사용합니다. 기존 Firebase 보안규칙이
-     gabwoo-k7m9x2 경로 전체(하위 포함)에 적용되어 있다면 별도 설정 없이 바로 동작합니다. */
-  DB_REF = firebase.database().ref('gabwoo-k7m9x2/catalog');
-  BOARD_REF = firebase.database().ref('gabwoo-k7m9x2/catalog/board');
-
-  BOARD_REF.on('value', function(snap){
-    renderBoard(snap.val());
-  });
+     gabwoo-contents-v1 경로 전체(하위 포함)에 적용되어 있다면 별도 설정 없이 바로 동작합니다. */
+  DB_REF = firebase.database().ref('gabwoo-contents-v1/catalog');
+  BOARD_REF = firebase.database().ref('gabwoo-contents-v1/catalog/board');
 
   function hideLoading(){
     const el = document.getElementById('loadingOverlay');
     if(el) el.style.display = 'none';
   }
+
+  /* 익명 인증: 화면에는 아무 표시도 없이 자동으로 로그인 처리 → 이후 규칙에서 auth!=null 조건 통과 */
+  firebase.auth().signInAnonymously().then(startApp).catch(function(err){
+    console.error('익명 인증 실패:', err.message);
+    STATE = { extraCols: [], values: {} };
+    hideLoading();
+    renderAll();
+  });
+
+  function startApp(){
+  BOARD_REF.on('value', function(snap){
+    renderBoard(snap.val());
+  });
 
   DB_REF.once('value').then(function(snap){
     const data = snap.val();
@@ -1040,6 +1050,7 @@ document.getElementById('memoCloseBtn').addEventListener('click', closeMemoPanel
     hideLoading();
     renderAll();
   });
+  } // startApp 끝
 })();
 </script>
 </body>
